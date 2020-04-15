@@ -16,15 +16,18 @@ all copies or substantial portions of the Software.
 /*                               Include Files                              */
 /****************************************************************************/
 #include "LED.h"
-
-
+/****************************************************************************/
+/*                               Public Functions                           */
+/****************************************************************************/
 /**
 	* @brief  Init Led structure and configurations
 	* @param  void
-	* @retval void
+	* @retval Error
 	*/
-void init_led(void)
+Error init_led(void)
 {
+	Error E = Success;
+	
 	/*Create instance of GPIO to assign it to the LED*/
 	gpio_pin_conf_t led_pin_conf;
 	
@@ -35,7 +38,12 @@ void init_led(void)
 	led_pin_conf.pull  =  GPIO_PIN_NO_PULL_PUSH;
 	
 	/*Led is connected by SOC to GPIOD */
-	MCAL_gpio_init(LED_GPIO, &led_pin_conf);
+	E = MCAL_gpio_init(LED_GPIO, &led_pin_conf);
+	
+	if (E != Success)
+	logger_print_error(" GPIO Init Failed \n");
+	
+	return E;
 }
 
 
@@ -43,11 +51,18 @@ void init_led(void)
 	* @brief  turn on LED
 	* @param  GPIOx : GPIO Base Address
 	* @param  pinNo : pin Number to be Configured
-	* @retval void
+	* @retval Error
 	*/
-void led_turn_on(GPIO_TypeDef *GPIOx , uint16_t pin)
+Error led_turn_on(GPIO_TypeDef *GPIOx , uint16_t pin)
 {
-	MCAL_Gpio_write(LED_GPIO,USER_LED,HIGH);
+	Error E = Success;
+	
+	E = MCAL_Gpio_write(LED_GPIO,USER_LED,HIGH);
+	
+	if (E != Success)
+	logger_print_error(" GPIO Write Failed \n");
+	
+	return E;
 }
 
 
@@ -56,11 +71,18 @@ void led_turn_on(GPIO_TypeDef *GPIOx , uint16_t pin)
 	* @brief  turn Off LED
 	* @param  GPIOx : GPIO Base Address
 	* @param  pinNo : pin Number to be Configured
-	* @retval void
+	* @retval Error
 	*/
-void led_turn_off(GPIO_TypeDef *GPIOx , uint16_t pin)
+Error led_turn_off(GPIO_TypeDef *GPIOx , uint16_t pin)
 {
-	MCAL_Gpio_write(LED_GPIO,USER_LED,LOW);
+	Error E = Success;
+	
+	E = MCAL_Gpio_write(LED_GPIO,USER_LED,LOW);
+	
+	if (E != Success)
+	logger_print_error(" GPIO Write Failed \n");
+		
+	return E;
 }
 
 
@@ -69,18 +91,34 @@ void led_turn_off(GPIO_TypeDef *GPIOx , uint16_t pin)
 	* @brief  Toggle LED
 	* @param  GPIOx : GPIO Base Address
 	* @param  pinNo : pin Number to be Configured
-	* @retval void
+	* @retval Error
 	*/
-void led_toggle(GPIO_TypeDef *GPIOx , uint16_t pin)
+Error led_toggle(GPIO_TypeDef *GPIOx , uint16_t pin)
 {
-	if(MCAL_Gpio_read(LED_GPIO,USER_LED))
+	Error E = Success;
+	
+	uint8_t* ledStatus ;
+	
+	E = MCAL_Gpio_read(LED_GPIO,USER_LED,ledStatus);
+	
+	if (E != Success)
+	logger_print_error(" GPIO Read Failed \n");
+	
+	if(*ledStatus == HIGH)
 	{
-		MCAL_Gpio_write(LED_GPIO,USER_LED,LOW);
+		E = MCAL_Gpio_write(LED_GPIO,USER_LED,LOW);
+		
+		if (E != Success)
+	  logger_print_error(" GPIO Write Failed \n");
 	}
 	else
 	{
-		MCAL_Gpio_write(LED_GPIO,USER_LED,HIGH);
+		E = MCAL_Gpio_write(LED_GPIO,USER_LED,HIGH);
+		if (E != Success)
+		logger_print_error(" GPIO Write Failed \n");
+		
 	}
+	return E;
 }
 
 /****************************************************************************/

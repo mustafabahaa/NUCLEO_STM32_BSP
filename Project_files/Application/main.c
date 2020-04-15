@@ -21,7 +21,7 @@ int main (void)
 	
 	while (1)
 	{
-
+		led_turn_on(LED_GPIO,USER_LED);
 	}
 	return 0;
 }

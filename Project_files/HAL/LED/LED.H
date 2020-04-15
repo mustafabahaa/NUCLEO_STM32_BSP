@@ -28,34 +28,34 @@ all copies or substantial portions of the Software.
 /**
 	* @brief  Init Led structure and configurations
 	* @param  void
-	* @retval void
+	* @retval Error
 	*/
-void init_led(void);
+Error init_led(void);
 
 /**
 	* @brief  turn on LED
 	* @param  GPIOx : GPIO Base Address
 	* @param  pinNo : pin Number to be Configured
-	* @retval void
+	* @retval Error
 	*/
-void led_turn_on(GPIO_TypeDef *GPIOx , uint16_t pin);
+Error led_turn_on(GPIO_TypeDef *GPIOx , uint16_t pin);
 
 
 /**
 	* @brief  turn Off LED
 	* @param  GPIOx : GPIO Base Address
 	* @param  pinNo : pin Number to be Configured
-	* @retval void
+	* @retval Error
 	*/
-void led_turn_off(GPIO_TypeDef *GPIOx , uint16_t pin);
+Error led_turn_off(GPIO_TypeDef *GPIOx , uint16_t pin);
 
 
 /**
 	* @brief  Toggle LED
 	* @param  GPIOx : GPIO Base Address
 	* @param  pinNo : pin Number to be Configured
-	* @retval void
+	* @retval Error
 	*/
-void led_toggle(GPIO_TypeDef *GPIOx , uint16_t pin);
+Error led_toggle(GPIO_TypeDef *GPIOx , uint16_t pin);
 
 /****************************************************************************/
