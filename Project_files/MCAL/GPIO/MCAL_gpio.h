@@ -18,7 +18,10 @@ all copies or substantial portions of the Software.
 /****************************************************************************/
 #include "stm32f407.h"
 #include "peripherals_clock.h"
-
+#include "Logger.h"
+/****************************************************************************/
+/*                                GPIO Configurations                       */
+/****************************************************************************/
 #define GPIO_PIN_INPUT_MODE      0x00
 #define GPIO_PIN_OUTPUT_MODE     0x01
 #define GPIO_PIN_ALTERNATE_MODE  0x02
@@ -35,7 +38,9 @@ all copies or substantial portions of the Software.
 #define GPIO_PIN_PULL_UP        0x01
 #define GPIO_PIN_PULL_DOWN      0x02
 
-/*GPIOx Base */
+/****************************************************************************/
+/*                         GPIOx Base Addresses                             */
+/****************************************************************************/
 #define GPIOA_BASE            (AHB1PERIPH_BASE + 0x0000UL) 
 #define GPIOB_BASE            (AHB1PERIPH_BASE + 0x0400UL)
 #define GPIOC_BASE            (AHB1PERIPH_BASE + 0x0800UL)
@@ -56,6 +61,11 @@ all copies or substantial portions of the Software.
 #define GPIOH               ((GPIO_TypeDef *) GPIOH_BASE)
 #define GPIOI               ((GPIO_TypeDef *) GPIOI_BASE)
 
+
+/****************************************************************************/
+/*                         GPIOx Clock Gating                               */
+/****************************************************************************/
+
 #define GPIOA_CLOCK_ENABLE() SET_BIT(RCC->AHB1ENR,0);
 #define GPIOB_CLOCK_ENABLE() SET_BIT(RCC->AHB1ENR,1);
 #define GPIOC_CLOCK_ENABLE() SET_BIT(RCC->AHB1ENR,2);
@@ -66,6 +76,9 @@ all copies or substantial portions of the Software.
 #define GPIOH_CLOCK_ENABLE() SET_BIT(RCC->AHB1ENR,7);
 #define GPIOI_CLOCK_ENABLE() SET_BIT(RCC->AHB1ENR,8);
 
+/****************************************************************************/
+/*                         GPIO Module Structures and enums                 */
+/****************************************************************************/
 
 typedef struct
 {
@@ -92,6 +105,7 @@ typedef struct
 }gpio_pin_conf_t;
 
 
+
 /****************************************************************************/
 /*                               Public Functions                           */
 /****************************************************************************/
@@ -100,40 +114,29 @@ typedef struct
 /**
 	* @brief  Init GPIO Port Clock
 	* @param  GPIOx   : GPIO Base Address
-	* @retval void
+  * @retval Error   :	Status of function
 	*/
-void MCAL_gpio_init(GPIO_TypeDef *GPIOx, gpio_pin_conf_t *gpio_pin_conf);
-
-/**
-	* @brief  Configure GPIO configure pin pull down , up
-	* @param  GPIOx   : GPIO Base Address
-	* @param  pinNo   : pin Number to be Configured
-	* @param  pupd    : pull down or pull up configurations
-	* @retval void
-	*/
-void MCAL_Gpio_configure_pin_pupd 
-	(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint32_t pupd);
-
+Error MCAL_gpio_init(GPIO_TypeDef *GPIOx, gpio_pin_conf_t *gpio_pin_conf);
 
 /**
 	* @brief  Configure GIPO alternate functions 
 	* @param  GPIOx   : GPIO Base Address
 	* @param  pinNo   : pin Number to be Configured
 	* @param  pupd    : alternate function value according to datasheet
-	* @retval void
+  * @retval Error   :	Status of function
 	*/
-void MCAL_Gpio_set_alt_function
+Error MCAL_Gpio_set_alt_function
 	(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint32_t alt_fun_value);
-
 
 
 /**
 	* @brief  Read GPIO Current States high or low
 	* @param  GPIOx   : GPIO Base Address
 	* @param  pinNo   : pin Number to be Configured
-  * @retval uint8_t : the value of returnted GPIO states
+	* @param  pinNo   : Value to be returned
+  * @retval Error   :	Status of function
 	*/
-uint8_t MCAL_Gpio_read(GPIO_TypeDef *GPIOx, uint16_t pinNo);
+Error MCAL_Gpio_read(GPIO_TypeDef *GPIOx, uint16_t pinNo , uint8_t *returnValue);
 
 
 
@@ -141,9 +144,9 @@ uint8_t MCAL_Gpio_read(GPIO_TypeDef *GPIOx, uint16_t pinNo);
 	* @brief  Write GPIO high or low
 	* @param  GPIOx   : GPIO Base Address
 	* @param  pinNo   : pin Number to be Configured
-  * @retval uint8_t : the value to be written
+  * @retval Error   :	Status of function
 	*/
-void MCAL_Gpio_write(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint8_t value);
+Error MCAL_Gpio_write(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint8_t value);
 
 
 #endif /*MCAL_GPIO_H_*/

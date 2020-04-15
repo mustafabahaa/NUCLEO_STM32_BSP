@@ -16,8 +16,9 @@ all copies or substantial portions of the Software.
 /*                               Include Files                              */
 /****************************************************************************/
 #include "LED.h"
-
-
+/****************************************************************************/
+/*                               Public Functions                           */
+/****************************************************************************/
 /**
 	* @brief  Init Led structure and configurations
 	* @param  void
@@ -73,7 +74,11 @@ void led_turn_off(GPIO_TypeDef *GPIOx , uint16_t pin)
 	*/
 void led_toggle(GPIO_TypeDef *GPIOx , uint16_t pin)
 {
-	if(MCAL_Gpio_read(LED_GPIO,USER_LED))
+	uint8_t* ledStatus ;
+	
+	MCAL_Gpio_read(LED_GPIO,USER_LED,ledStatus);
+	
+	if(*ledStatus == HIGH)
 	{
 		MCAL_Gpio_write(LED_GPIO,USER_LED,LOW);
 	}

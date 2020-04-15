@@ -71,7 +71,7 @@ static void MCAL_Gpio_configure_pin_speed
 	* @param  pupd    : pull down or pull up configurations
 	* @retval void
 	*/
-void MCAL_Gpio_configure_pin_pupd 
+static void MCAL_Gpio_configure_pin_pupd 
 	(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint32_t pupd)
 {
 	GPIOx->PUPDR |= (pupd << (2 * pinNo));
@@ -87,8 +87,10 @@ void MCAL_Gpio_configure_pin_pupd
 	* @retval void
 	*/
 
-void MCAL_gpio_init(GPIO_TypeDef *GPIOx, gpio_pin_conf_t *gpio_pin_conf)
+Error MCAL_gpio_init(GPIO_TypeDef *GPIOx, gpio_pin_conf_t *gpio_pin_conf)
 {
+	Error E = Success ; 
+	
 	if      (GPIOx == GPIOA){MCAL_RCC_GPIOA_CLK_ENABLE();}
 	else if (GPIOx == GPIOB){MCAL_RCC_GPIOB_CLK_ENABLE();}
 	else if (GPIOx == GPIOC){MCAL_RCC_GPIOC_CLK_ENABLE();}
@@ -97,12 +99,18 @@ void MCAL_gpio_init(GPIO_TypeDef *GPIOx, gpio_pin_conf_t *gpio_pin_conf)
 	else if (GPIOx == GPIOF){MCAL_RCC_GPIOF_CLK_ENABLE();}
 	else if (GPIOx == GPIOG){MCAL_RCC_GPIOG_CLK_ENABLE();}
 	else if (GPIOx == GPIOH){MCAL_RCC_GPIOH_CLK_ENABLE();}
-	else {};
+	else 
+	{
+	  E = Fail;
+		logger_print_error("Port not found \n");
+	};
 		
 	MCAL_Gpio_configre_pin_mode(GPIOx,gpio_pin_conf->pin, gpio_pin_conf->mode);
 	MCAL_Gpio_configure_pin_speed(GPIOx,gpio_pin_conf->pin, gpio_pin_conf->speed);
 	MCAL_Gpio_configure_pin_output_type(GPIOx,gpio_pin_conf->pin, gpio_pin_conf->op_type);
 	MCAL_Gpio_configure_pin_pupd(GPIOx,gpio_pin_conf->pin, gpio_pin_conf->pull);
+		
+	return E;
 }
 
 
@@ -113,9 +121,11 @@ void MCAL_gpio_init(GPIO_TypeDef *GPIOx, gpio_pin_conf_t *gpio_pin_conf)
 	* @param  pupd    : alternate function value according to datasheet
 	* @retval void
 	*/
-void MCAL_Gpio_set_alt_function
+Error MCAL_Gpio_set_alt_function
 	(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint32_t alt_fun_value)
 {
+	Error E = Success;
+	
 	/*differnet handling for HSB Register and LSB */
 	if (pinNo <= ALT_FUNCTION_LOW_REGISTER_LIMIT )
 	{
@@ -125,6 +135,7 @@ void MCAL_Gpio_set_alt_function
 	{
 		GPIOx->AFR[1] |= (alt_fun_value << ((pinNo % 8) * 4 ));
 	}
+	return E;
 }
 
 
@@ -134,9 +145,18 @@ void MCAL_Gpio_set_alt_function
 	* @param  pinNo   : pin Number to be Configured
   * @retval uint8_t : the value of returnted GPIO states
 	*/
-uint8_t MCAL_Gpio_read(GPIO_TypeDef *GPIOx, uint16_t pinNo)
+Error MCAL_Gpio_read(GPIO_TypeDef *GPIOx, uint16_t pinNo , uint8_t* returnValue)
 {
-	return ((GPIOx->IDR >> pinNo) & 0x00000001);
+	Error E = Success;
+
+	*returnValue = (uint8_t)((GPIOx->IDR >> pinNo) & 0x00000001);
+	
+	if (*returnValue != HIGH || *returnValue != LOW) 
+	{
+		E = Fail;
+		logger_print_error("GPIO Read Failed \n");
+	}
+	return E;
 }
 
 
@@ -147,8 +167,15 @@ uint8_t MCAL_Gpio_read(GPIO_TypeDef *GPIOx, uint16_t pinNo)
 	* @param  pinNo   : pin Number to be Configured
   * @retval uint8_t : the value to be written
 	*/
-void MCAL_Gpio_write(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint8_t value)
+Error MCAL_Gpio_write(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint8_t value)
 {
+	Error E = Success;
+	
+	if (value != HIGH || value != LOW) 
+	{
+		E = Fail;
+		logger_print_warning("GPIO not intetned value \n");
+	}
 	if (value)
 	{
 		SET_BIT(GPIOx->ODR,pinNo);
@@ -157,6 +184,7 @@ void MCAL_Gpio_write(GPIO_TypeDef *GPIOx , uint16_t pinNo , uint8_t value)
 	{
 		CLR_BIT(GPIOx->ODR,pinNo);
 	}
+	return E;
 }
 
 
